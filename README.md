@@ -27,11 +27,11 @@ The assignments for the second part and my scores
 
 | Assignment |              Name                 |  Score  |
 |:----------:|:----------------------------------| -------:|
-| week1      | [WordNet][6]                  | 100/100 |
-| week2      | [Seam Carving][7] | 84/100  |
-| week3      | [Baseball Elimination][8]             | 100/100 |
-| week4      | [Boggle][9]                     | 100/100 |
-| week5      | [Burrows–Wheeler][10]                    | 100/100 |
+| week1      | [WordNet][6]                      | 100/100 |
+| week2      | [Seam Carving][7]                 | 84/100  |
+| week3      | [Baseball Elimination][8]         | 100/100 |
+| week4      | [Boggle][9]                       | 100/100 |
+| week5      | [Burrows–Wheeler][10]             | 100/100 |
 
 [6]: https://coursera.cs.princeton.edu/algs4/assignments/wordnet/specification.php
 [7]: https://coursera.cs.princeton.edu/algs4/assignments/seam/specification.php
