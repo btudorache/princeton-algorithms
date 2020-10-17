@@ -1,9 +1,3 @@
-/* *****************************************************************************
- *  Name:              Alan Turing
- *  Coursera User ID:  123456
- *  Last modified:     1/1/2019
- **************************************************************************** */
-
 import edu.princeton.cs.algs4.StdRandom;
 import edu.princeton.cs.algs4.StdStats;
 
@@ -57,9 +51,6 @@ public class PercolationStats {
                                                       Integer.parseInt(args[1]));
         System.out.println("mean \t\t\t= " + stats.mean());
         System.out.println("stddev \t\t\t= " + stats.stddev());
-        System.out.println(
-                "95% confidence interval = [" + stats.confidenceLo() + ", " + stats
-                        .confidenceHi()
-                        + "]");
+        System.out.println("95% confidence interval = [" + stats.confidenceLo() + ", " + stats.confidenceHi() + "]");
     }
 }

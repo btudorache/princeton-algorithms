@@ -1,9 +1,3 @@
-/* *****************************************************************************
- *  Name:              Alan Turing
- *  Coursera User ID:  123456
- *  Last modified:     1/1/2019
- **************************************************************************** */
-
 import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 
 public class Percolation {
@@ -83,8 +77,7 @@ public class Percolation {
 
         int unionFindPos = this.gridSize * (row - 1) + (col - 1);
         return (this.isOpen(row, col) &&
-                (this.mainUnionFind.find(this.topCell) ==
-                        this.mainUnionFind.find(unionFindPos)));
+                (this.mainUnionFind.find(this.topCell) == this.mainUnionFind.find(unionFindPos)));
     }
 
     public int numberOfOpenSites() {
@@ -96,8 +89,7 @@ public class Percolation {
             return this.isOpen(1, 1);
         }
         else {
-            return (this.backwashUnionFind.find(this.topCell) ==
-                    this.backwashUnionFind.find(this.botCell));
+            return (this.backwashUnionFind.find(this.topCell) == this.backwashUnionFind.find(this.botCell));
         }
     }
 }

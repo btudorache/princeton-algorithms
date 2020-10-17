@@ -1,9 +1,3 @@
-/* *****************************************************************************
- *  Name:
- *  Date:
- *  Description:
- **************************************************************************** */
-
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.StdDraw;
 import edu.princeton.cs.algs4.StdOut;
@@ -39,11 +33,9 @@ public class BruteCollinearPoints {
             for (int j = i + 1; j < points.length; j++) {
                 for (int k = j + 1; k < points.length; k++) {
                     for (int l = k + 1; l < points.length; l++) {
-                        if (Double
-                                .compare(points[i].slopeTo(points[j]), points[i].slopeTo(points[k]))
-                                == 0 &&
-                                Double.compare(points[i].slopeTo(points[k]),
-                                               points[i].slopeTo(points[l])) == 0) {
+                        if (Double.compare(points[i].slopeTo(points[j]), points[i].slopeTo(points[k])) == 0 &&
+                            Double.compare(points[i].slopeTo(points[k]), points[i].slopeTo(points[l])) == 0) {
+
                             Point[] fourPoints = { points[i], points[j], points[k], points[l] };
                             Arrays.sort(fourPoints, 0, 4);
                             this.segm[this.numSegments++] = new LineSegment(fourPoints[0],
