@@ -11,4 +11,5 @@ For more information, check the [official assignment description](https://course
 Linux / Windows
 ```
 javac -cp ../../lib/algs4.jar Percolation.java PercolationStats.java
+java -cp ../../lib/algs4.jar;. PercolationStats 100 200   // run with sample n = 100 T = 200 
 ```
