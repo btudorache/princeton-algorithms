@@ -82,6 +82,7 @@ public class KdTree {
     public KdTree() {
         this.size = 0;
         this.iterable = new Stack<Node>();
+        this.root = null;
     }
 
     private void put(Point2D key) {
@@ -112,17 +113,16 @@ public class KdTree {
         if (x.key.compareTo(key) == 0) {
             return true;
         }
+
         double cmp;
         if (x.isVertical) {
             cmp = key.x() - x.key.x();
-        }
-        else {
+        } else {
             cmp = key.y() - x.key.y();
         }
         if (cmp < 0) {
             return get(x.left, key);
-        }
-        else {
+        } else {
             return get(x.right, key);
         }
     }
@@ -141,17 +141,16 @@ public class KdTree {
             this.iterable.push(newNode);
             return newNode;
         }
+
         double cmp;
         if (x.isVertical) {
             cmp = key.x() - x.key.x();
-        }
-        else {
+        } else {
             cmp = key.y() - x.key.y();
         }
         if (cmp < 0) {
             x.left = put(x.left, x, key);
-        }
-        else {
+        } else {
             x.right = put(x.right, x, key);
         }
         return x;
@@ -240,8 +239,7 @@ public class KdTree {
                 if (x.left.rect.contains(p)) {
                     nearestSearch(x.left, p, minPoint);
                     nearestSearch(x.right, p, minPoint);
-                }
-                else {
+                } else {
                     nearestSearch(x.right, p, minPoint);
                     nearestSearch(x.left, p, minPoint);
                 }
@@ -249,16 +247,20 @@ public class KdTree {
             else {
                 nearestSearch(x.left, p, minPoint);
             }
-        }
-        else if (x.right != null && min.distanceTo(p) > x.right.rect.distanceTo(p)) {
+        } else if (x.right != null && min.distanceTo(p) > x.right.rect.distanceTo(p)) {
             nearestSearch(x.right, p, minPoint);
         }
     }
 
     public Point2D nearest(Point2D p) {
-        if (p == null || this.root == null) {
+        if (p == null) {
             throw new IllegalArgumentException();
         }
+
+        if (this.root == null) {
+            return null;
+        }
+
         Point2D min = this.root.key;
         Stack<Point2D> minPoint = new Stack<Point2D>();
         minPoint.push(min);

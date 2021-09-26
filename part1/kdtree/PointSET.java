@@ -44,6 +44,7 @@ public class PointSET {
         if (rect == null) {
             throw new IllegalArgumentException();
         }
+
         Stack<Point2D> pointsInRect = new Stack<Point2D>();
         for (Point2D point : points) {
             if (rect.contains(point)) {
@@ -57,16 +58,18 @@ public class PointSET {
         if (p == null) {
             throw new IllegalArgumentException();
         }
+
         if (points.isEmpty()) {
             return null;
         }
-        Point2D near = points.min();
+
+        Point2D nearest = points.min();
         for (Point2D point : points) {
-            if (point.distanceTo(p) < near.distanceTo(p)) {
-                near = point;
+            if (point.distanceTo(p) < nearest.distanceTo(p)) {
+                nearest = point;
             }
         }
-        return near;
+        return nearest;
     }
 
     public static void main(String[] args) {
