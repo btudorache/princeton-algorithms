@@ -11,7 +11,7 @@ The assignments for the first part and my scores
 |:----------:|:----------------------------------| -------:|
 | week1      | [Percolation][1]                  | 100/100 |
 | week2      | [Deques and Randomized Queues][2] | 100/100 |
-| week3      | [Collinear Points][3]             |  80/100 |
+| week3      | [Collinear Points][3]             |  99/100 |
 | week4      | [8 Puzzle][4]                     |  85/100 |
 | week5      | [Kd-Trees][5]                     |  93/100 |
 

@@ -2,85 +2,81 @@ import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.StdDraw;
 import edu.princeton.cs.algs4.StdOut;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class FastCollinearPoints {
-    private int numSegments;
-    private LineSegment[] segm;
+    private final ArrayList<LineSegment> segments;
 
     public FastCollinearPoints(Point[] points) {
         if (points == null) {
             throw new IllegalArgumentException();
         }
-        for (int i = 0; i < points.length; i++) {
-            if (points[i] == null) {
+
+        for (Point point : points) {
+            if (point == null) {
                 throw new IllegalArgumentException();
             }
         }
-        for (int i = 0; i < points.length; i++) {
-            for (int j = 0; j < points.length; j++) {
-                if (i != j && points[i].compareTo(points[j]) == 0) {
-                    throw new IllegalArgumentException();
-                }
+
+        ArrayList<Point> copyPoints = new ArrayList<>();
+        Collections.addAll(copyPoints, points);
+        Collections.sort(copyPoints);
+
+        for (int i = 1; i < points.length; i++) {
+            if (copyPoints.get(i).compareTo(copyPoints.get(i - 1)) == 0) {
+                throw new IllegalArgumentException();
             }
         }
-        this.numSegments = 0;
-        this.segm = new LineSegment[1000000];
-        if (points.length < 4) {
-            return;
-        }
+
+        this.segments = new ArrayList<>();
+
         for (int i = 0; i < points.length; i++) {
-            Point[] copyArray = new Point[points.length - 1];
-            int ind = 0;
-            for (int j = 0; j < points.length; j++) {
-                if (points[i].compareTo(points[j]) != 0) {
-                    copyArray[ind++] = points[j];
-                }
-            }
-            Arrays.sort(copyArray, 0, copyArray.length, points[i].slopeOrder());
-            int start = 0;
-            int cnt = 0;
-            for (int j = 0; j < copyArray.length; j++) {
-                if (Double.compare(points[i].slopeTo(copyArray[start]),
-                                   points[i].slopeTo(copyArray[j])) != 0 && cnt >= 3) {
-                    Arrays.sort(copyArray, start, j);
-                    if (points[i].compareTo(copyArray[start]) < 0) {
-                        this.segm[this.numSegments++] = new LineSegment(points[i],
-                                                                        copyArray[j - 1]);
-                    }
-                    start = j;
-                    cnt = 1;
-                }
-                else if (Double.compare(points[i].slopeTo(copyArray[start]),
-                                        points[i].slopeTo(copyArray[j])) != 0) {
-                    start = j;
-                    cnt = 1;
-                }
-                else if (Double.compare(points[i].slopeTo(copyArray[start]),
-                                        points[i].slopeTo(copyArray[j])) == 0) {
-                    if (cnt >= 3 && j == copyArray.length - 1) {
-                        Arrays.sort(copyArray, start, j + 1);
-                        if (points[i].compareTo(copyArray[start]) < 0) {
-                            this.segm[this.numSegments++] = new LineSegment(points[i],
-                                                                            copyArray[j]);
+            Point currPoint = points[i];
+            copyPoints.sort(currPoint.slopeOrder());
+
+            List<Point> linePoints = new ArrayList<>();
+            linePoints.add(copyPoints.get(0));
+            double slope = currPoint.slopeTo(copyPoints.get(0));
+
+            for (int j = 1; j < copyPoints.size(); j++) {
+                Point point = copyPoints.get(j);
+                double currSlope = currPoint.slopeTo(point);
+                if (Double.compare(slope, currSlope) == 0) {
+                    linePoints.add(copyPoints.get(j));
+                } else  {
+                    if (linePoints.size() >= 3) {
+                        linePoints.add(currPoint);
+                        Collections.sort(linePoints);
+                        if (currPoint == linePoints.get(0)) {
+                            this.segments.add(new LineSegment(linePoints.get(0), linePoints.get(linePoints.size() - 1)));
                         }
                     }
-                    else {
-                        cnt++;
-                    }
+                    slope = currSlope;
+                    linePoints.clear();
+                    linePoints.add(point);
+                }
+            }
+
+            if (linePoints.size() >= 3) {
+                linePoints.add(currPoint);
+                Collections.sort(linePoints);
+                if (currPoint == linePoints.get(0)) {
+                    this.segments.add(new LineSegment(linePoints.get(0), linePoints.get(linePoints.size() - 1)));
                 }
             }
         }
     }
 
     public int numberOfSegments() {
-        return this.numSegments;
+        return this.segments.size();
     }
 
     public LineSegment[] segments() {
-        LineSegment[] finalSegm = new LineSegment[this.numSegments];
-        for (int i = 0; i < this.numSegments; i++) {
-            finalSegm[i] = this.segm[i];
+        LineSegment[] finalSegm = new LineSegment[numberOfSegments()];
+        for (int i = 0; i < numberOfSegments(); i++) {
+            finalSegm[i] = this.segments.get(i);
         }
         return finalSegm;
     }
@@ -111,6 +107,7 @@ public class FastCollinearPoints {
             StdOut.println(segment);
             segment.draw();
         }
+        StdOut.println(collinear.numberOfSegments());
         StdDraw.show();
     }
 }
