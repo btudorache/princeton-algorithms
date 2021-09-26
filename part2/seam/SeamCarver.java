@@ -7,11 +7,11 @@ public class SeamCarver {
         if (picture == null) {
             throw new IllegalArgumentException();
         }
-        this.currPicture = picture;
+        this.currPicture = new Picture(picture);
     }
 
     public Picture picture() {
-        return this.currPicture;
+        return new Picture(this.currPicture);
     }
 
     public int width() {
@@ -23,40 +23,40 @@ public class SeamCarver {
     }
 
     private double getDeltaXSquared(int x, int y) {
-        int color1 = this.currPicture.get(x + 1, y).getRGB();
-        int color2 = this.currPicture.get(x - 1, y).getRGB();
+        int color1 = this.currPicture.get(y, x + 1).getRGB();
+        int color2 = this.currPicture.get(y, x - 1).getRGB();
 
         int R1 = (color1 >> 16) & 0xFF;
         int G1 = (color1 >> 8) & 0xFF;
-        int B1 = (color1 >> 0) & 0xFF;
+        int B1 = (color1) & 0xFF;
 
         int R2 = (color2 >> 16) & 0xFF;
         int G2 = (color2 >> 8) & 0xFF;
-        int B2 = (color2 >> 0) & 0xFF;
+        int B2 = (color2) & 0xFF;
 
         return ((R1 - R2) * (R1 - R2) + (G1 - G2) * (G1 - G2) + (B1 - B2) * (B1 - B2));
     }
 
     private double getDeltaYSquared(int x, int y) {
-        int color1 = this.currPicture.get(x, y + 1).getRGB();
-        int color2 = this.currPicture.get(x, y - 1).getRGB();
+        int color1 = this.currPicture.get(y + 1, x).getRGB();
+        int color2 = this.currPicture.get(y - 1, x).getRGB();
 
         int R1 = (color1 >> 16) & 0xFF;
         int G1 = (color1 >> 8) & 0xFF;
-        int B1 = (color1 >> 0) & 0xFF;
+        int B1 = (color1) & 0xFF;
 
         int R2 = (color2 >> 16) & 0xFF;
         int G2 = (color2 >> 8) & 0xFF;
-        int B2 = (color2 >> 0) & 0xFF;
+        int B2 = (color2) & 0xFF;
 
         return ((R1 - R2) * (R1 - R2) + (G1 - G2) * (G1 - G2) + (B1 - B2) * (B1 - B2));
     }
 
-    public double energy(int x, int y) {
-        if (x < 0 || x > this.width() - 1 || y < 0 || y > this.height() - 1) {
+    public double energy(int y, int x) {
+        if (x < 0 || x > this.height() - 1 || y < 0 || y > this.width() - 1) {
             throw new IllegalArgumentException();
         }
-        if (x == 0 || x == this.width() - 1 || y == 0 || y == this.height() - 1) {
+        if (x == 0 || x == this.height() - 1 || y == 0 || y == this.width() - 1) {
             return 1000.00;
         }
         else {
@@ -65,144 +65,76 @@ public class SeamCarver {
     }
 
     private double[][] getEnergyMatrix() {
-        double[][] energyMatrix = new double[this.width()][this.height()];
-        for (int i = 0; i < this.width(); i++) {
-            for (int j = 0; j < this.height(); j++) {
-                energyMatrix[i][j] = energy(i, j);
+        double[][] energyMatrix = new double[this.height()][this.width()];
+        for (int i = 0; i < this.height(); i++) {
+            for (int j = 0; j < this.width(); j++) {
+                energyMatrix[i][j] = energy(j, i);
             }
         }
         return energyMatrix;
     }
 
-    private class Node {
-        private int x;
-        private int y;
-        private Node prevNode;
-        private double weight;
-
-        private Node(int x, int y) {
-            this.x = x;
-            this.y = y;
-            this.prevNode = null;
-            this.weight = Double.POSITIVE_INFINITY;
-        }
-
-        private Node(int x, int y, double weight) {
-            this.x = x;
-            this.y = y;
-            this.prevNode = null;
-            this.weight = weight;
-        }
-
-        private double getWeight() {
-            return this.weight;
-        }
-
-        private void setWeight(double weight) {
-            this.weight = weight;
-        }
-
-        private void setPrevNode(Node prevNode) {
-            this.prevNode = prevNode;
-        }
-
-        private int getX() {
-            return this.x;
-        }
-    }
-
-    private void relaxe(int x, int y, double[][] energyMatrix, Node[][] nodes) {
-        if (y + 1 > this.height() - 1) {
-            return;
-        }
-        double checkWeight;
-        for (int i = -1; i <= 1; i++) {
-            if (x + i < 0 || x + i > this.width() - 1) {
-                continue;
-            }
-            checkWeight = nodes[x][y].getWeight() + energyMatrix[x + i][y + 1];
-            if (checkWeight < nodes[x + i][y + 1].getWeight()) {
-                nodes[x + i][y + 1].setWeight(checkWeight);
-                nodes[x + i][y + 1].setPrevNode(nodes[x][y]);
-            }
-        }
-    }
-
     public int[] findVerticalSeam() {
         double[][] energyMatrix = getEnergyMatrix();
-        Node[][] nodes;
-        double min = Double.POSITIVE_INFINITY;
-        double localMin;
-        int[] path = new int[this.height()];
+        double[][] dp = new double[height()][width()];
+        int[][] parents = new int[height()][width()];
 
-        for (int i = 0; i < this.width(); i++) {
+        for (int j = 0; j < this.width(); j++) {
+            dp[0][j] = energyMatrix[0][j];
+        }
 
-            // initialize nodes
-            nodes = new Node[this.width()][this.height()];
-            for (int j = 0; j < this.height(); j++) {
-                int start;
-                int finish;
-                if (i - j < 0) {
-                    start = 0;
-                }
-                else {
-                    start = i - j;
-                }
-                if (i + j > this.width() - 1) {
-                    finish = this.width() - 1;
-                }
-                else {
-                    finish = i + j;
-                }
-                for (int k = start; k <= finish; k++) {
+        if (height() > 1 && width() > 1) {
+            for (int i = 1; i < this.height(); i++) {
+                for (int j = 0; j < this.width(); j++) {
+                    int start;
+                    int end;
+
                     if (j == 0) {
-                        nodes[k][j] = new Node(k, j, 1000.00);
+                        start = 0;
+                        end = 1;
+                    }
+                    else if (j == this.width() - 1) {
+                        start = this.width() - 2;
+                        end = this.width() - 1;
                     }
                     else {
-                        nodes[k][j] = new Node(k, j);
+                        start = j - 1;
+                        end = j + 1;
                     }
-                }
-            }
 
-            // relaxe nodes
-            for (int j = 0; j < this.height(); j++) {
-                int start;
-                int finish;
-                if (i - j < 0) {
-                    start = 0;
-                }
-                else {
-                    start = i - j;
-                }
-                if (i + j > this.width() - 1) {
-                    finish = this.width() - 1;
-                }
-                else {
-                    finish = i + j;
-                }
-                for (int k = start; k <= finish; k++) {
-                    relaxe(k, j, energyMatrix, nodes);
-                }
-            }
+                    int y = -1;
+                    double minVal = Double.POSITIVE_INFINITY;
+                    for (int k = start; k <= end; k++) {
+                        if (dp[i - 1][k] < minVal) {
+                            minVal = dp[i - 1][k];
+                            y = k;
+                        }
+                    }
 
-            localMin = Double.POSITIVE_INFINITY;
-            Node minPath = null;
-            for (int t = 0; t < this.width(); t++) {
-                if (nodes[t][this.height() - 1] != null
-                        && nodes[t][this.height() - 1].getWeight() < localMin) {
-                    localMin = nodes[t][this.height() - 1].getWeight();
-                    minPath = nodes[t][this.height() - 1];
+                    parents[i][j] = y;
+                    dp[i][j] += (energyMatrix[i][j] + minVal);
                 }
-            }
-
-            if (localMin < min) {
-                int ind = this.height() - 1;
-                for (Node node = minPath; node != null; node = node.prevNode) {
-                    path[ind--] = node.getX();
-                }
-                min = localMin;
             }
         }
+
+        double minSeam = Double.POSITIVE_INFINITY;
+        int y = -1;
+        for (int j = 0; j < this.width(); j++) {
+            if (dp[this.height() - 1][j] < minSeam) {
+                minSeam = dp[this.height() - 1][j];
+                y = j;
+            }
+        }
+
+        int[] path = new int[height()];
+        path[this.height() - 1] = y;
+        int parent = parents[this.height() - 1][y];
+
+        for (int i = this.height() - 2; i >= 0; i--) {
+            path[i] = parent;
+            parent = parents[i][parent];
+        }
+
         return path;
     }
 
@@ -210,7 +142,7 @@ public class SeamCarver {
         Picture newPicture = new Picture(this.height(), this.width());
         for (int i = 0; i < newPicture.width(); i++) {
             for (int j = 0; j < newPicture.height(); j++) {
-                newPicture.set(i, j, this.picture().get(j, i));
+                newPicture.set(i, j, this.currPicture.get(j, i));
             }
         }
         this.currPicture = newPicture;
@@ -257,7 +189,7 @@ public class SeamCarver {
                     newPicY--;
                     continue;
                 }
-                newPicture.set(newPicY, newPicX, this.picture().get(j, i));
+                newPicture.set(newPicY, newPicX, this.currPicture.get(j, i));
             }
         }
         this.currPicture = newPicture;
@@ -293,6 +225,7 @@ public class SeamCarver {
     public static void main(String[] args) {
         Picture picture = new Picture(args[0]);
         SeamCarver sc = new SeamCarver(picture);
-        sc.removeVerticalSeam(sc.findVerticalSeam());
+        sc.findVerticalSeam();
+        sc.findHorizontalSeam();
     }
 }
