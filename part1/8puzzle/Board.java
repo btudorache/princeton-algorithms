@@ -4,14 +4,14 @@ import edu.princeton.cs.algs4.Stack;
 import java.util.Arrays;
 
 public class Board {
-    private int[][] board;
-    private int n;
+    private final int[][] board;
+    private final int n;
 
     public Board(int[][] tiles) {
         if (tiles == null) {
             throw new IllegalArgumentException();
         }
-        
+
         n = tiles[0].length;
         board = copyArray(tiles);
     }
@@ -89,10 +89,10 @@ public class Board {
         return Arrays.deepEquals(this.board, that.board);
     }
 
-    private void exchange(int[][] board, int x, int y, int xx, int yy) {
-        int aux = board[y][x];
-        board[y][x] = board[yy][xx];
-        board[yy][xx] = aux;
+    private void exchange(int[][] boardCopy, int x, int y, int xx, int yy) {
+        int aux = boardCopy[y][x];
+        boardCopy[y][x] = boardCopy[yy][xx];
+        boardCopy[yy][xx] = aux;
     }
 
     // all neighboring boards
@@ -140,23 +140,28 @@ public class Board {
                     firstX = j;
                     firstY = i;
                     firstFound = true;
+                    continue;
                 }
-                if (!secondFound && firstFound && this.board[i][j] != 0 &&
+
+                if (firstFound && this.board[i][j] != 0 &&
                         this.board[i][j] != this.board[firstY][firstX]) {
                     secondX = j;
                     secondY = i;
                     secondFound = true;
                 }
+
                 if (firstFound && secondFound) {
                     break;
                 }
             }
+
             if (firstFound && secondFound) {
                 break;
             }
         }
+
         int[][] newArray = copyArray(this.board);
-        exchange(newArray, firstX, firstY, secondX, secondX);
+        exchange(newArray, firstX, firstY, secondX, secondY);
         return new Board(newArray);
     }
 

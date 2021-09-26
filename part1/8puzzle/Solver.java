@@ -1,13 +1,15 @@
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.MinPQ;
-import edu.princeton.cs.algs4.Queue;
 import edu.princeton.cs.algs4.StdOut;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
 public class Solver {
-    private SearchNode solNode;
-    private boolean solvable;
+    private final SearchNode solNode;
+    private final boolean solvable;
 
     public Solver(Board initial) {
         if (initial == null) {
@@ -16,41 +18,35 @@ public class Solver {
 
         MinPQ<SearchNode> firstPq = new MinPQ<SearchNode>(new KeyOrder());
         MinPQ<SearchNode> secondPq = new MinPQ<SearchNode>(new KeyOrder());
+
         SearchNode firstNode = new SearchNode(null, initial);
         SearchNode secondNode = new SearchNode(null, initial.twin());
+
         firstPq.insert(firstNode);
         secondPq.insert(secondNode);
         while (true) {
             SearchNode firstcheckNode = firstPq.delMin();
             SearchNode secondcheckNode = secondPq.delMin();
-            if (firstcheckNode.currentBoard.isGoal()) {
+            if (firstcheckNode.isGoal) {
                 solNode = firstcheckNode;
                 solvable = true;
                 break;
             }
-            if (secondcheckNode.currentBoard.isGoal()) {
+            if (secondcheckNode.isGoal) {
                 solNode = secondcheckNode;
                 solvable = false;
                 break;
             }
+
             for (Board board : firstcheckNode.currentBoard.neighbors()) {
-                if (firstcheckNode.prevNode != null &&
-                        !board.equals(firstcheckNode.prevNode.currentBoard)) {
-                    SearchNode newNode = new SearchNode(firstcheckNode, board);
-                    firstPq.insert(newNode);
-                }
-                else if (firstcheckNode.prevNode == null) {
+                if (firstcheckNode.prevNode == null || !board.equals(firstcheckNode.prevNode.currentBoard)) {
                     SearchNode newNode = new SearchNode(firstcheckNode, board);
                     firstPq.insert(newNode);
                 }
             }
+
             for (Board board : secondcheckNode.currentBoard.neighbors()) {
-                if (secondcheckNode.prevNode != null &&
-                        !board.equals(secondcheckNode.prevNode.currentBoard)) {
-                    SearchNode newNode = new SearchNode(secondcheckNode, board);
-                    secondPq.insert(newNode);
-                }
-                else if (secondcheckNode.prevNode == null) {
+                if (secondcheckNode.prevNode == null || !board.equals(secondcheckNode.prevNode.currentBoard)) {
                     SearchNode newNode = new SearchNode(secondcheckNode, board);
                     secondPq.insert(newNode);
                 }
@@ -59,17 +55,20 @@ public class Solver {
     }
 
     private class SearchNode {
-        private Board currentBoard;
-        private SearchNode prevNode;
-        private int moves;
+        private final Board currentBoard;
+        private final SearchNode prevNode;
+        private final boolean isGoal;
+        private final int manhattan;
+        private final int moves;
 
         public SearchNode(SearchNode prev, Board current) {
             currentBoard = current;
             prevNode = prev;
+            manhattan = current.manhattan();
+            isGoal = manhattan == 0;
             if (prev == null) {
                 moves = 0;
-            }
-            else {
+            } else {
                 moves = prevNode.moves + 1;
             }
         }
@@ -77,17 +76,8 @@ public class Solver {
 
     private class KeyOrder implements Comparator<SearchNode> {
         public int compare(SearchNode node1, SearchNode node2) {
-            if (node1.currentBoard.manhattan() + node1.moves >
-                    node2.currentBoard.manhattan() + node2.moves) {
-                return 1;
-            }
-            else if (node1.currentBoard.manhattan() + node1.moves <
-                    node2.currentBoard.manhattan() + node2.moves) {
-                return -1;
-            }
-            else {
-                return 0;
-            }
+            return Integer.compare(node1.manhattan + node1.moves,
+                                   node2.manhattan + node2.moves);
         }
     }
 
@@ -100,8 +90,7 @@ public class Solver {
     public int moves() {
         if (this.isSolvable()) {
             return this.solNode.moves;
-        }
-        else {
+        } else {
             return -1;
         }
     }
@@ -110,14 +99,15 @@ public class Solver {
     public Iterable<Board> solution() {
         if (this.isSolvable()) {
             SearchNode copy = this.solNode;
-            Queue<Board> sol = new Queue<Board>();
-            while (copy.prevNode != null) {
-                sol.enqueue(copy.currentBoard);
+            List<Board> sol = new ArrayList<>();
+            while (copy != null) {
+                sol.add(copy.currentBoard);
                 copy = copy.prevNode;
             }
+
+            Collections.reverse(sol);
             return sol;
-        }
-        else {
+        } else {
             return null;
         }
     }

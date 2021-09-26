@@ -12,7 +12,7 @@ The assignments for the first part and my scores
 | week1      | [Percolation][1]                  | 100/100 |
 | week2      | [Deques and Randomized Queues][2] | 100/100 |
 | week3      | [Collinear Points][3]             |  99/100 |
-| week4      | [8 Puzzle][4]                     |  85/100 |
+| week4      | [8 Puzzle][4]                     | 100/100 |
 | week5      | [Kd-Trees][5]                     |  93/100 |
 
 [1]: https://coursera.cs.princeton.edu/algs4/assignments/percolation/specification.php
